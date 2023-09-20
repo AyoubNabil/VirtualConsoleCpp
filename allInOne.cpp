@@ -18,6 +18,25 @@ private:
 	std::string role = "User";
 };
 
+
+std::string separateCommand(std::string command) {
+	std::string repCommand = "";
+	for (int i = 0; i < command.size(); ++i) {
+		if (command[i] == ' ') {
+			for (int k = 0; k < i; ++k) {
+				repCommand += command[k];
+			}
+		}
+	}
+	return repCommand;
+}
+
+void menu() {
+	system("cls");
+	std::cout << "--- VIRTUAL CONSOLE AYOUB NABIL 2023 ---\n";
+	std::cout << "|_                 C++                _|\n";
+}
+
 bool verifyRole(std::string role) {
 	if (role == "Admin" || role == "admin" || role == "ADMIN") { return true; }
 	else { return false; }
@@ -71,9 +90,9 @@ void readFile(std::map<std::string, std::string> repositoryMap, std::string file
 
 	isInRepo = p_findFile(repositoryMap, fileName, ptr_fileContent);
 	
-	if (!findFile) {std::cout << "File not found !" << std::endl;}
+	if (!isInRepo) {std::cout << "| File not found !" << std::endl;}
 
-	else if (findFile) { 
+	else if (isInRepo) {
 		std::cout << "|" << std::endl;
 		std::cout << "-------> READING FILE : " << fileName << std::endl << "|" << std::endl << "|__[READ][CONTENT] -> " << fileContent << std::endl;
 	}
@@ -84,7 +103,7 @@ std::map<std::string, std::string> modifyFile(std::map<std::string, std::string>
 	std::string newContent;
 	if (findFile(repositoryMap, fileName) == true) {
 		std::cout << std::endl <<"-------> WRITING FILE : " << fileName << std::endl;
-		std::cout << "|";
+		std::cout << "|\n";
 		std::cout << "|_[WRITE][FILE] -> ";
 		getline(std::cin, newContent);
 		repositoryMap[fileName] = newContent;
@@ -93,13 +112,31 @@ std::map<std::string, std::string> modifyFile(std::map<std::string, std::string>
 	return repositoryMap;
 }
 
+std::map<std::string, std::string> deleteFile(std::map<std::string, std::string> repositoryMap, std::string fileName) {
+	if (findFile(repositoryMap, fileName)) {
+		repositoryMap.erase(fileName);
+		std::cout << "\n-------> ERASE FILE\n";
+		std::cout << "|" << std::endl << "| {" << fileName << "} It's successfully erased.\n|";
+		std::cout << ">----<\n" << std::endl;
+		return repositoryMap;
+	}
+	else {
+		std::cout << "\n-------> ERROR \n|\n|_ [File Not Found] >-< \n";
+		return repositoryMap;
+	}
+}
+
+void consoleMain() {
+	menu();
+	std::string command;
+	std::cout << "-> ";getline(std::cin, command);
+}
+
+
+
 
 int main(void)
 {
-	std::map<std::string, std::string> Dir = createDefaultFile({ "Premier Fichier" , "Deuxieme Fichier" , "Troisieme Fichier" }, "txt");
-	Dir = createFile(Dir, "test Nouveau fichier", "exe", "Salut Je suis le contenue !");
-	coutRepository(Dir);
-	readFile(Dir, "test Nouveau fichier.exe");
-	Dir = modifyFile(Dir, "test Nouveau fichier.exe");
-	readFile(Dir, "test Nouveau fichier.exe");
+	std::string command = separateCommand("cls test");
+	std::cout << command.size();
 }
