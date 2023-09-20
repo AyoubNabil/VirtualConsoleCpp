@@ -20,12 +20,17 @@ private:
 
 
 std::string separateCommand(std::string command) {
+	bool temp = false;
 	std::string repCommand = "";
 	for (int i = 0; i < command.size(); ++i) {
 		if (command[i] == ' ') {
 			for (int k = 0; k < i; ++k) {
 				repCommand += command[k];
+				temp = true;
 			}
+		}
+		if (i == command.size() - 1&& temp == false) {
+			return command;
 		}
 	}
 	return repCommand;
@@ -140,32 +145,41 @@ std::map<std::string, std::string> deleteFile(std::map<std::string, std::string>
 }
 
 void startCommand(std::string command, std::string argv, std::map<std::string, std::string> repository) {
-	if (command == "cls") { system("cls"); }
-	if (command == "menu") { menu(); }
-	if (command == "cdf") { repository = createDefaultFile({argv , argv} , "txt"); }
-	if (command == "ls") { coutRepository(repository); };
-	if (command == "create") {
-		std::string extention;
-		std::string content;
-		std::cout << "| Extention -> ";getline(std::cin, extention);
-		std::cout << "\n| Content -> ";getline(std::cin, content);std::cout << std::endl;
-		repository = createFile(repository, argv, extention, content);
-	};
-	if (command == "read") {readFile(repository, argv);}
-	if (command == "del") { repository = deleteFile(repository, argv); }
-	if (command == "modify") { repository = modifyFile(repository , argv); }
+
 
 }
 
 
 
 void consoleMain() {
-	std::map<std::string, std::string> repository;
+	std::map<std::string, std::string> repositoryT = createDefaultFile({ "System" }, "atror");
 	menu();
-	std::string command;
-	std::cout << "-> ";getline(std::cin, command);
-
-	startCommand(separateCommand(command) , separateParam(command) , repository);
+	
+	while (true) {
+		std::string command;
+		std::cout << "-> ";getline(std::cin, command);
+		std::string argv1 = separateCommand(command);
+		std::string argv = separateParam(command);
+		if (argv1 == "cls") { system("cls"); }
+		if (argv1 == "menu") { menu(); }
+		if (argv1 == "cdf") { 
+			std::string extention;
+			std::cout << "| Extention -> ";getline(std::cin, extention);
+			repositoryT = createDefaultFile({ argv , argv }, extention);
+		}
+		if (argv1 == "ls") { coutRepository(repositoryT); };
+		if (argv1 == "create") {
+			std::string extention;
+			std::string content;
+			std::cout << "| Extention -> ";getline(std::cin, extention);
+			std::cout << "\n| Content -> ";getline(std::cin, content);std::cout << std::endl;
+			repositoryT = createFile(repositoryT, argv, extention, content);
+		};
+		if (argv1 == "read") { readFile(repositoryT, argv); }
+		if (argv1 == "del") { repositoryT = deleteFile(repositoryT, argv); }
+		if (argv1 == "modify") { repositoryT = modifyFile(repositoryT, argv); }
+	}
+	
 
 }
 
@@ -174,6 +188,5 @@ void consoleMain() {
 
 int main(void)
 {
-	std::string command = separateParam("cls test");
-	std::cout << command;
+	consoleMain();
 }
