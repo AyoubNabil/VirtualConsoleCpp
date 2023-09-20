@@ -31,6 +31,19 @@ std::string separateCommand(std::string command) {
 	return repCommand;
 }
 
+std::string separateParam(std::string command) {
+	std::string repCommand = "";
+	for (int i = 0; i < command.size(); ++i) {
+		if (command[i] == ' ') {
+			for (int k = i+1; k < command.size(); ++k) {
+				repCommand += command[k];
+			}
+		}
+	}
+	return repCommand;
+}
+
+
 void menu() {
 	system("cls");
 	std::cout << "--- VIRTUAL CONSOLE AYOUB NABIL 2023 ---\n";
@@ -126,10 +139,34 @@ std::map<std::string, std::string> deleteFile(std::map<std::string, std::string>
 	}
 }
 
+void startCommand(std::string command, std::string argv, std::map<std::string, std::string> repository) {
+	if (command == "cls") { system("cls"); }
+	if (command == "menu") { menu(); }
+	if (command == "cdf") { repository = createDefaultFile({argv , argv} , "txt"); }
+	if (command == "ls") { coutRepository(repository); };
+	if (command == "create") {
+		std::string extention;
+		std::string content;
+		std::cout << "| Extention -> ";getline(std::cin, extention);
+		std::cout << "\n| Content -> ";getline(std::cin, content);std::cout << std::endl;
+		repository = createFile(repository, argv, extention, content);
+	};
+	if (command == "read") {readFile(repository, argv);}
+	if (command == "del") { repository = deleteFile(repository, argv); }
+	if (command == "modify") { repository = modifyFile(repository , argv); }
+
+}
+
+
+
 void consoleMain() {
+	std::map<std::string, std::string> repository;
 	menu();
 	std::string command;
 	std::cout << "-> ";getline(std::cin, command);
+
+	startCommand(separateCommand(command) , separateParam(command) , repository);
+
 }
 
 
@@ -137,6 +174,6 @@ void consoleMain() {
 
 int main(void)
 {
-	std::string command = separateCommand("cls test");
-	std::cout << command.size();
+	std::string command = separateParam("cls test");
+	std::cout << command;
 }
