@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <Windows.h>
 
 class Admin {
 public:
@@ -29,7 +28,7 @@ std::string separateCommand(std::string command) {
 				temp = true;
 			}
 		}
-		if (i == command.size() - 1&& temp == false) {
+		if (i == command.size() - 1 && temp == false) {
 			return command;
 		}
 	}
@@ -40,7 +39,7 @@ std::string separateParam(std::string command) {
 	std::string repCommand = "";
 	for (int i = 0; i < command.size(); ++i) {
 		if (command[i] == ' ') {
-			for (int k = i+1; k < command.size(); ++k) {
+			for (int k = i + 1; k < command.size(); ++k) {
 				repCommand += command[k];
 			}
 		}
@@ -80,7 +79,7 @@ std::map<std::string, std::string> createFile(std::map<std::string, std::string>
 	return repository;
 }
 
-bool p_findFile(std::map<std::string, std::string> repository, std::string fileName , std::string* ptr_fileContent) {
+bool p_findFile(std::map<std::string, std::string> repository, std::string fileName, std::string* ptr_fileContent) {
 	for (const auto& pairs : repository) {
 		if (pairs.first == fileName) {
 			*ptr_fileContent = pairs.second;
@@ -107,8 +106,8 @@ void readFile(std::map<std::string, std::string> repositoryMap, std::string file
 	std::string* ptr_fileContent = &fileContent;
 
 	isInRepo = p_findFile(repositoryMap, fileName, ptr_fileContent);
-	
-	if (!isInRepo) {std::cout << "| File not found !" << std::endl;}
+
+	if (!isInRepo) { std::cout << "| File not found !" << std::endl; }
 
 	else if (isInRepo) {
 		std::cout << "|" << std::endl;
@@ -120,7 +119,7 @@ void readFile(std::map<std::string, std::string> repositoryMap, std::string file
 std::map<std::string, std::string> modifyFile(std::map<std::string, std::string> repositoryMap, std::string fileName) {
 	std::string newContent;
 	if (findFile(repositoryMap, fileName) == true) {
-		std::cout << std::endl <<"-------> WRITING FILE : " << fileName << std::endl;
+		std::cout << std::endl << "-------> WRITING FILE : " << fileName << std::endl;
 		std::cout << "|\n";
 		std::cout << "|_[WRITE][FILE] -> ";
 		getline(std::cin, newContent);
@@ -144,25 +143,50 @@ std::map<std::string, std::string> deleteFile(std::map<std::string, std::string>
 	}
 }
 
-void startCommand(std::string command, std::string argv, std::map<std::string, std::string> repository) {
+std::map<int, std::vector<std::string>> createRepository(std::string repoName, std::map<std::string, std::string> content) {
+	std::map<int, std::vector<std::string>> repoFile;
+	int index = 1;
+	for (const auto& pairs : content) {
+		repoFile[index] = { pairs.first , pairs.second };
+		index += 1;
+	}
+	return repoFile;
+}
 
-
+void coutRepositoryFile(std::map<int, std::vector<std::string>> repoFile, std::string repoName) {
+	std::cout << "| [REPO FILE]\n|\n";
+	std::cout << repoName << " -  |\n";
+	for (const auto& pairs : repoFile) {
+		std::cout << "|_[NAME] -> " << pairs.second[0] << std::endl;
+		std::cout << "|          ^^^^^^^^^^^^^^^" << std::endl;
+		std::cout << "|          |   READING   |" << std::endl;
+		std::cout << "|_________>|_____________| CONTENT -> " << pairs.second[1] << std::endl;
+	}
 }
 
 
-
-void consoleMain() {
+void consoleMain(std::string UserName, std::string Role) {
 	std::map<std::string, std::string> repositoryT = createDefaultFile({ "System" }, "atror");
+	std::map<int, std::vector<std::string>> repoFileP = createRepository("System", repositoryT);
 	menu();
-	
+
 	while (true) {
+		//commandes basiques
+		std::map<int, std::vector<std::string>> repoFileP = createRepository("System", repositoryT);
 		std::string command;
 		std::cout << "-> ";getline(std::cin, command);
 		std::string argv1 = separateCommand(command);
 		std::string argv = separateParam(command);
 		if (argv1 == "cls") { system("cls"); }
 		if (argv1 == "menu") { menu(); }
-		if (argv1 == "cdf") { 
+		if (argv1 == "repo") {
+			std::map<int, std::vector<std::string>> repoFileP = createRepository("System", repositoryT);
+			coutRepositoryFile(repoFileP, "System");
+		}
+		if (argv1 == "crepo") {
+			std::map<int, std::vector<std::string>> repoFileP = createRepository(argv, repositoryT);
+		}
+		if (argv1 == "cdf") {
 			std::string extention;
 			std::cout << "| Extention -> ";getline(std::cin, extention);
 			repositoryT = createDefaultFile({ argv , argv }, extention);
@@ -172,14 +196,27 @@ void consoleMain() {
 			std::string extention;
 			std::string content;
 			std::cout << "| Extention -> ";getline(std::cin, extention);
-			std::cout << "\n| Content -> ";getline(std::cin, content);std::cout << std::endl;
+			std::cout << "| Content -> ";getline(std::cin, content);std::cout << std::endl;
 			repositoryT = createFile(repositoryT, argv, extention, content);
 		};
-		if (argv1 == "read") { readFile(repositoryT, argv); }
-		if (argv1 == "del") { repositoryT = deleteFile(repositoryT, argv); }
-		if (argv1 == "modify") { repositoryT = modifyFile(repositoryT, argv); }
+
+
+		//commandes admin
+		if (argv1 == "read") {
+			if (verifyRole(Role)) { readFile(repositoryT, argv); }
+			else { std::cout << "\n| you don't have the roles of reading, writing and erasing\n"; }
+		}
+		if (argv1 == "del") {
+			if (verifyRole(Role)) { repositoryT = deleteFile(repositoryT, argv); }
+			else { std::cout << "\n| you don't have the roles of reading, writing and erasing\n"; }
+		}
+		if (argv1 == "modify") {
+			if (verifyRole(Role)) { repositoryT = modifyFile(repositoryT, argv); }
+			else { std::cout << "\n| you don't have the roles of reading, writing and erasing\n"; }
+		}
+
 	}
-	
+
 
 }
 
@@ -188,5 +225,5 @@ void consoleMain() {
 
 int main(void)
 {
-	consoleMain();
+	consoleMain("Ayoub", "Admin");
 }
